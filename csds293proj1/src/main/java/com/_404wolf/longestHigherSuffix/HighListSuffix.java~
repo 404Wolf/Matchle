@@ -1,14 +1,16 @@
 package com._404wolf.longestHigherSuffix;
 
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 /**
  * Hello world!
  */
 public class HighListSuffix {
+  public static void main(String[] args) {
+    System.out.println("Hello World!");
+  }
+
   /**
    * Return as many elements from the back of a for where the corresponding
    * elements in b are lesser.
@@ -20,10 +22,8 @@ public class HighListSuffix {
    *         lesser
    */
   public static <T extends Comparable<? super T>> List<T> longestHigherSuffix(List<T> a, List<T> b, Comparator<T> cmp) {
-    return IntStream.range(1, a.size() + 1)
-        .takeWhile(
-            i -> i <= b.size() && cmp.compare(a.get(a.size() - i), b.get(b.size() - i)) >= 0)
-        .mapToObj(i -> a.get(a.size() - i))
-        .collect(LinkedList::new, LinkedList::addFirst, LinkedList::addAll);
+    while (a.size() >= 0 && b.size() >= 0) {
+      
+    }
   }
 }
