@@ -19,6 +19,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    */
   public record IndexedCharacter(int index, Character character) {
   }
+
   /**
    * Exception thrown when a null character is encountered in NGram creation.
    */
@@ -33,7 +34,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
      */
     public static final List<Character> validate(List<Character> ngram) {
       boolean valid = ngram.stream()
-          .filter(c -> c == null)
+          .filter(c -> c != null)
           .findAny().isPresent();
 
       if (valid)
@@ -52,7 +53,14 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @throws IllegalArgumentException if any character in the argument is null
    */
   public static final NGram from(List<Character> characters) {
-    return new NGram(new ArrayList<>(NullCharacterException.validate(characters)), Set.copyOf(characters));
+    if (characters == null)
+      throw new NullPointerException("Character list cannot be null");
+    if (characters.contains(null))
+      throw new IllegalArgumentException("Character cannot be null");
+
+    return new NGram(
+        new ArrayList<>(NullCharacterException.validate(characters)),
+        Set.copyOf(characters));
   }
 
   /**
@@ -63,9 +71,9 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @throws NullPointerException if the argument is null
    */
   public static final NGram from(String word) {
-    if (word == null) {
+    if (word == null)
       throw new NullPointerException("Word cannot be null");
-    }
+
     List<Character> charList = word.chars()
         .mapToObj(ch -> (char) ch)
         .collect(Collectors.toList());
