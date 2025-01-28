@@ -23,13 +23,17 @@ public final class Corpus implements Iterable<NGram> {
     return Set.copyOf(corpus);
   }
 
-  @Override
-  public Iterator<NGram> iterator() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'iterator'");
+  /**
+   * Returns the common size of the n-grams in the corpus
+   *
+   * @return the common size of the n-grams in the corpus
+   */
+  int wordSize() {
+    return corpus.iterator().next().size();
   }
 
-  public final class Iterator implements java.util.Iterator<NGram> {
-    private int cursor
-  };
+  @Override
+  public Iterator<NGram> iterator() {
+    return corpus.iterator();
+  }
 }

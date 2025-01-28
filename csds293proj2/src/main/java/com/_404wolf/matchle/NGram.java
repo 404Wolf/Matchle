@@ -1,10 +1,11 @@
 package com._404wolf.matchle;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -13,16 +14,33 @@ import java.util.stream.Stream;
  */
 public final class NGram implements Iterable<NGram.IndexedCharacter> {
 
-  private final ArrayList<Character> ngram;
-  private final Set<Character> charset;
-
   /**
-   * Private constructor to initialize the NGram.
-   * Use the static factory methods to create instances of NGram.
+   * Represents a character with its index in the NGram.
    */
-  private NGram(ArrayList<Character> ngram, Set<Character> charset) {
-    this.ngram = ngram;
-    this.charset = charset;
+  public record IndexedCharacter(int index, Character character) {
+  }
+  /**
+   * Exception thrown when a null character is encountered in NGram creation.
+   */
+  public static final class NullCharacterException extends Exception {
+    /**
+     * Validates a list of characters, ensuring none are null.
+     * 
+     * @param ngram the list of characters to validate
+     * @return the validated list of characters
+     * @throws NullPointerException     if the argument is null
+     * @throws IllegalArgumentException if any character in the argument is null
+     */
+    public static final List<Character> validate(List<Character> ngram) {
+      boolean valid = ngram.stream()
+          .filter(c -> c == null)
+          .findAny().isPresent();
+
+      if (valid)
+        return ngram;
+      else
+        throw new IllegalArgumentException("Character cannot be null");
+    }
   }
 
   /**
@@ -52,6 +70,19 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
         .mapToObj(ch -> (char) ch)
         .collect(Collectors.toList());
     return NGram.from(charList);
+  }
+
+  private final ArrayList<Character> ngram;
+
+  private final Set<Character> charset;
+
+  /**
+   * Private constructor to initialize the NGram.
+   * Use the static factory methods to create instances of NGram.
+   */
+  private NGram(ArrayList<Character> ngram, Set<Character> charset) {
+    this.ngram = ngram;
+    this.charset = charset;
   }
 
   /**
@@ -130,8 +161,11 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
   }
 
   @Override
-  public Iterator iterator() {
-    return new Iterator();
+  public Iterator<IndexedCharacter> iterator() {
+    return IntStream
+        .range(0, ngram.size())
+        .mapToObj(i -> new IndexedCharacter(i, ngram.get(i)))
+        .iterator();
   }
 
   @Override
@@ -147,52 +181,5 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
   @Override
   public int hashCode() {
     return ngram.hashCode();
-  }
-
-  public final class Iterator implements java.util.Iterator<IndexedCharacter> {
-    private int cursor = 0;
-
-    @Override
-    public boolean hasNext() {
-      return cursor < ngram.size();
-    }
-
-    @Override
-    public IndexedCharacter next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      return new IndexedCharacter(cursor++, ngram.get(cursor - 1));
-    }
-  }
-
-  /**
-   * Represents a character with its index in the NGram.
-   */
-  public record IndexedCharacter(int index, Character character) {
-  }
-
-  /**
-   * Exception thrown when a null character is encountered in NGram creation.
-   */
-  public static final class NullCharacterException extends Exception {
-    /**
-     * Validates a list of characters, ensuring none are null.
-     * 
-     * @param ngram the list of characters to validate
-     * @return the validated list of characters
-     * @throws NullPointerException     if the argument is null
-     * @throws IllegalArgumentException if any character in the argument is null
-     */
-    public static final List<Character> validate(List<Character> ngram) {
-      boolean valid = ngram.stream()
-          .filter(c -> c == null)
-          .findAny().isPresent();
-
-      if (valid)
-        return ngram;
-      else
-        throw new IllegalArgumentException("Character cannot be null");
-    }
   }
 }
