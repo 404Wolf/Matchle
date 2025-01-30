@@ -13,12 +13,14 @@ import java.util.Set;
 public final class Corpus implements Iterable<NGram> {
   private final Set<NGram> corpus;
 
-  private Corpus(Set<NGram> corpus) {
-    this.corpus = corpus;
-  }
-
   public Set<NGram> getCorpus() {
     return corpus;
+  }
+
+  // TODO immutable set
+  // TODO assertion for non null
+  private Corpus(Set<NGram> corpus) {
+    this.corpus = corpus;
   }
 
   /**
@@ -69,7 +71,7 @@ public final class Corpus implements Iterable<NGram> {
      * @param nGram the n-gram to add
      * @throws NullPointerException if the n-gram is null
      */
-    public Builder add(NGram nGram) {
+    public Builder add(NGram nGram) throws NullPointerException {
       if (nGram == null)
         throw new NullPointerException("nGram cannot be null");
 
@@ -85,7 +87,7 @@ public final class Corpus implements Iterable<NGram> {
      *                              elements
      * @return this Builder instance for method chaining
      */
-    public Builder addAll(Collection<NGram> nGrams) {
+    public Builder addAll(Collection<NGram> nGrams) throws NullPointerException {
       if (nGrams == null)
         throw new NullPointerException("nGrams collection cannot be null");
 
@@ -125,9 +127,8 @@ public final class Corpus implements Iterable<NGram> {
      */
     public static final Builder of(Corpus corpus) {
       Builder builder = new Builder();
-      for (NGram nGram : corpus) {
+      for (NGram nGram : corpus)
         builder.add(nGram);
-      }
       return builder;
     }
   };

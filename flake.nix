@@ -1,5 +1,5 @@
 {
-  description = "Java DevShell";
+  description = "Development environment for CSDS293 Assignment 2";
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
