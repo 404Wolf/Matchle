@@ -13,6 +13,17 @@ import java.util.stream.Stream;
  * immutable.
  */
 public final class NGram implements Iterable<NGram.IndexedCharacter> {
+  private final ArrayList<Character> ngram;
+  private final Set<Character> charset;
+
+  /**
+   * Private constructor to initialize the NGram.
+   * Use the static factory methods to create instances of NGram.
+   */
+  private NGram(ArrayList<Character> ngram, Set<Character> charset) {
+    this.ngram = ngram;
+    this.charset = charset;
+  }
 
   /**
    * Represents a character with its index in the NGram.
@@ -32,7 +43,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
      * @throws NullPointerException     if the argument is null
      * @throws IllegalArgumentException if any character in the argument is null
      */
-    public static final List<Character> validate(List<Character> ngram) {
+    public static final List<Character> validate(List<Character> ngram) throws IllegalArgumentException {
       boolean valid = ngram.stream()
           .allMatch(c -> c != null);
 
@@ -51,7 +62,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @throws NullPointerException     if the argument is null
    * @throws IllegalArgumentException if any character in the argument is null
    */
-  public static final NGram from(List<Character> characters) {
+  public static final NGram from(List<Character> characters) throws NullPointerException, IllegalArgumentException {
     if (characters == null)
       throw new NullPointerException("Character list cannot be null");
     if (characters.contains(null))
@@ -69,7 +80,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @return a new NGram instance
    * @throws NullPointerException if the argument is null
    */
-  public static final NGram from(String word) {
+  public static final NGram from(String word) throws NullPointerException {
     if (word == null)
       throw new NullPointerException("Word cannot be null");
 
@@ -79,19 +90,6 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
     return NGram.from(charList);
   }
 
-  private final ArrayList<Character> ngram;
-
-  private final Set<Character> charset;
-
-  /**
-   * Private constructor to initialize the NGram.
-   * Use the static factory methods to create instances of NGram.
-   */
-  private NGram(ArrayList<Character> ngram, Set<Character> charset) {
-    this.ngram = ngram;
-    this.charset = charset;
-  }
-
   /**
    * Returns the Character at the specified index in this NGram.
    * 
@@ -99,7 +97,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @return the Character at the specified index
    * @throws IndexOutOfBoundsException if the index is out of range
    */
-  public Character get(int index) {
+  public Character get(int index) throws IndexOutOfBoundsException {
     if (index < 0 || index >= ngram.size()) {
       throw new IndexOutOfBoundsException("Index out of range: " + index);
     }
@@ -123,10 +121,11 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @return true if the character matches at the given index, false otherwise
    */
   public boolean matches(IndexedCharacter c) {
-    if (c.index() < 0 || c.index() >= ngram.size()) {
+    if (0 <= c.index() && c.index() < ngram.size()) {
+      return ngram.get(c.index()).equals(c.character());
+    } else {
       return false;
     }
-    return ngram.get(c.index()).equals(c.character());
   }
 
   /**
