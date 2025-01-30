@@ -34,8 +34,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
      */
     public static final List<Character> validate(List<Character> ngram) {
       boolean valid = ngram.stream()
-          .filter(c -> c != null)
-          .findAny().isPresent();
+          .allMatch(c -> c != null);
 
       if (valid)
         return ngram;
