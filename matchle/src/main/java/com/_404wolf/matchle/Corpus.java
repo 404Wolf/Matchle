@@ -1,6 +1,7 @@
 package com._404wolf.matchle;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
@@ -18,10 +19,10 @@ public final class Corpus implements Iterable<NGram> {
     return corpus;
   }
 
-  // TODO immutable set
-  // TODO assertion for non null
   private Corpus(Set<NGram> corpus) {
-    this.corpus = corpus;
+    Objects.requireNonNull(corpus, "corpus cannot be null");
+
+    this.corpus = Collections.unmodifiableSet(corpus);
   }
 
   /**
@@ -43,8 +44,24 @@ public final class Corpus implements Iterable<NGram> {
   }
 
   @Override
-  public Iterator<NGram> iterator() {
+  public java.util.Iterator<NGram> iterator() {
     return corpus.iterator();
+  }
+
+  /**
+   * Unused stub for iterator. This is not used and is only here to comply with
+   * assignment requirements.
+   */
+  public final class Iterator implements java.util.Iterator<NGram> {
+    @Override
+    public boolean hasNext() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public NGram next() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   /**

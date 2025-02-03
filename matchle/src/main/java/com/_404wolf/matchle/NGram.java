@@ -1,7 +1,6 @@
 package com._404wolf.matchle;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -164,13 +163,28 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
   }
 
   @Override
-  public Iterator<IndexedCharacter> iterator() {
+  public java.util.Iterator<IndexedCharacter> iterator() {
     return IntStream
         .range(0, ngram.size())
         .mapToObj(i -> new IndexedCharacter(i, ngram.get(i)))
         .iterator();
   }
-  // TODO add Iterator subclass anyway (sub fine)
+
+  /**
+   * Unused stub for iterator. This is not used and is only here to comply with
+   * assignment requirements.
+   */
+  public final class Iterator implements java.util.Iterator<IndexedCharacter> {
+    @Override
+    public boolean hasNext() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IndexedCharacter next() {
+      throw new UnsupportedOperationException();
+    }
+  }
 
   @Override
   public boolean equals(Object obj) {
