@@ -63,6 +63,8 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @throws IllegalArgumentException if any character in the argument is null
    */
   public static final NGram from(List<Character> characters) throws NullPointerException, IllegalArgumentException {
+    Objects.requireNonNull(characters);
+
     if (characters == null)
       throw new NullPointerException("Character list cannot be null");
     if (characters.contains(null))
@@ -173,6 +175,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
         .mapToObj(i -> new IndexedCharacter(i, ngram.get(i)))
         .iterator();
   }
+  // TODO add Iterator subclass anyway (sub fine)
 
   @Override
   public boolean equals(Object obj) {

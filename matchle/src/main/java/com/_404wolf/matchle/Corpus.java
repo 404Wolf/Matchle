@@ -13,12 +13,14 @@ import java.util.Set;
 public final class Corpus implements Iterable<NGram> {
   private final Set<NGram> corpus;
 
-  private Corpus(Set<NGram> corpus) {
-    this.corpus = corpus;
-  }
-
   public Set<NGram> getCorpus() {
     return corpus;
+  }
+
+  // TODO immutable set
+  // TODO assertion for non null
+  private Corpus(Set<NGram> corpus) {
+    this.corpus = corpus;
   }
 
   /**
