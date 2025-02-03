@@ -3,6 +3,7 @@ package com._404wolf.matchle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -62,13 +63,8 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @throws NullPointerException     if the argument is null
    * @throws IllegalArgumentException if any character in the argument is null
    */
-  public static final NGram from(List<Character> characters) throws NullPointerException, IllegalArgumentException {
-    Objects.requireNonNull(characters);
-
-    if (characters == null)
-      throw new NullPointerException("Character list cannot be null");
-    if (characters.contains(null))
-      throw new IllegalArgumentException("Character cannot be null");
+  public static final NGram from(List<Character> characters) throws IllegalArgumentException {
+    Objects.requireNonNull(characters, "Character list cannot be null");
 
     return new NGram(
         new ArrayList<>(NullCharacterException.validate(characters)),
@@ -83,8 +79,7 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @throws NullPointerException if the argument is null
    */
   public static final NGram from(String word) throws NullPointerException {
-    if (word == null)
-      throw new NullPointerException("Word cannot be null");
+    Objects.requireNonNull(word, "Word cannot be null");
 
     List<Character> charList = word.chars()
         .mapToObj(ch -> (char) ch)

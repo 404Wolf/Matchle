@@ -3,6 +3,7 @@ package com._404wolf.matchle;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -72,8 +73,7 @@ public final class Corpus implements Iterable<NGram> {
      * @throws NullPointerException if the n-gram is null
      */
     public Builder add(NGram nGram) throws NullPointerException {
-      if (nGram == null)
-        throw new NullPointerException("nGram cannot be null");
+      Objects.requireNonNull(nGram, "nGram cannot be null");
 
       corpus.add(nGram);
       return this;
@@ -88,12 +88,10 @@ public final class Corpus implements Iterable<NGram> {
      * @return this Builder instance for method chaining
      */
     public Builder addAll(Collection<NGram> nGrams) throws NullPointerException {
-      if (nGrams == null)
-        throw new NullPointerException("nGrams collection cannot be null");
+      Objects.requireNonNull(nGrams, "nGrams collection cannot be null");
 
       for (NGram nGram : nGrams) {
-        if (nGram == null)
-          throw new NullPointerException("nGrams collection cannot contain null elements");
+        Objects.requireNonNull(nGram, "nGrams collection cannot contain null elements");
         corpus.add(nGram);
       }
 
