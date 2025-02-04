@@ -1,6 +1,7 @@
 package com._404wolf.matchle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
  * immutable.
  */
 public final class NGram implements Iterable<NGram.IndexedCharacter> {
-  private final ArrayList<Character> ngram;
+  private final List<Character> ngram;
   private final Set<Character> charset;
 
   /**
@@ -21,8 +22,8 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * Use the static factory methods to create instances of NGram.
    */
   private NGram(ArrayList<Character> ngram, Set<Character> charset) {
-    this.ngram = ngram;
-    this.charset = charset;
+    this.ngram = Collections.unmodifiableList(ngram);
+    this.charset = Collections.unmodifiableSet(charset);
   }
 
   /**
@@ -40,7 +41,6 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
      * 
      * @param ngram the list of characters to validate
      * @return the validated list of characters
-     * @throws NullPointerException     if the argument is null
      * @throws IllegalArgumentException if any character in the argument is null
      */
     public static final List<Character> validate(List<Character> ngram) throws IllegalArgumentException {
@@ -157,9 +157,10 @@ public final class NGram implements Iterable<NGram.IndexedCharacter> {
    * @return a Stream of IndexedCharacters
    */
   public Stream<IndexedCharacter> stream() {
-    return Stream.iterate(0, i -> i + 1)
+    return IntStream
+        .range(0, ngram.size())
         .limit(ngram.size())
-        .map(i -> new IndexedCharacter(i, ngram.get(i)));
+        .mapToObj(i -> new IndexedCharacter(i, ngram.get(i)));
   }
 
   @Override

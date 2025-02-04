@@ -3,7 +3,6 @@ package com._404wolf.matchle;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -20,7 +19,7 @@ public final class Corpus implements Iterable<NGram> {
   }
 
   private Corpus(Set<NGram> corpus) {
-    Objects.requireNonNull(corpus, "corpus cannot be null");
+    Objects.requireNonNull(corpus, "Corpus cannot be null");
 
     this.corpus = Collections.unmodifiableSet(corpus);
   }
