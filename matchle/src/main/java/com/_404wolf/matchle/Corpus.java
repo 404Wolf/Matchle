@@ -7,9 +7,8 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The {@code Corpus} class represents a collection of n-grams that form a
- * dictionary for match-related applications. It ensures that all words in the
- * dictionary have the same length.
+ * The {@code Corpus} class represents a collection of n-grams that form a dictionary for
+ * match-related applications. It ensures that all words in the dictionary have the same length.
  */
 public final class Corpus implements Iterable<NGram> {
   private final Set<NGram> corpus;
@@ -48,8 +47,8 @@ public final class Corpus implements Iterable<NGram> {
   }
 
   /**
-   * Unused stub for iterator. This is not used and is only here to comply with
-   * assignment requirements.
+   * Unused stub for iterator. This is not used and is only here to comply with assignment
+   * requirements.
    */
   public final class Iterator implements java.util.Iterator<NGram> {
     @Override
@@ -67,7 +66,7 @@ public final class Corpus implements Iterable<NGram> {
    * A builder to create Corpus objects.
    *
    * <h2>Example</h2>
-   * 
+   *
    * <pre>
    * Corpus corpus = new Corpus.Builder()
    *     .addNGram(new NGram("word"))
@@ -75,8 +74,7 @@ public final class Corpus implements Iterable<NGram> {
    *     .build();
    * </pre>
    *
-   * @return A new {@code Builder} object that can be used to create a new
-   *         {@code Corpus} object.
+   * @return A new {@code Builder} object that can be used to create a new {@code Corpus} object.
    */
   public static final class Builder {
     private final Set<NGram> corpus = new HashSet<>();
@@ -97,10 +95,9 @@ public final class Corpus implements Iterable<NGram> {
 
     /**
      * Adds all n-grams from the given collection to the corpus.
-     * 
+     *
      * @param nGrams the collection of n-grams to add
-     * @throws NullPointerException if the collection is null or contains null
-     *                              elements
+     * @throws NullPointerException if the collection is null or contains null elements
      * @return this Builder instance for method chaining
      */
     public Builder addAll(Collection<NGram> nGrams) throws NullPointerException {
@@ -115,22 +112,15 @@ public final class Corpus implements Iterable<NGram> {
     }
 
     /**
-     * Returns a copy of a new Corpus, or null if not all n-grams are the same
-     * size.
+     * Returns a copy of a new Corpus, or null if not all n-grams are the same size.
      *
-     * @return a copy of new Corpus, or null if not all n-grams are the same
-     *         size.
+     * @return a copy of new Corpus, or null if not all n-grams are the same size.
      */
     public Corpus build() {
-      boolean allSameLen = corpus.stream()
-          .map(NGram::size)
-          .distinct()
-          .count() == 1;
+      boolean allSameLen = corpus.stream().map(NGram::size).distinct().count() == 1;
 
-      if (allSameLen)
-        return new Corpus(corpus);
-      else
-        return null;
+      if (allSameLen) return new Corpus(corpus);
+      else return null;
     }
 
     /**
@@ -141,9 +131,9 @@ public final class Corpus implements Iterable<NGram> {
      */
     public static final Builder of(Corpus corpus) {
       Builder builder = new Builder();
-      for (NGram nGram : corpus)
-        builder.add(nGram);
+      for (NGram nGram : corpus) builder.add(nGram);
       return builder;
     }
-  };
+  }
+  ;
 }
