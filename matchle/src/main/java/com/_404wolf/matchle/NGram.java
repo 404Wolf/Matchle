@@ -10,20 +10,15 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /** Represents a character with its index in the NGram. */
-record IndexedCharacter(int index, Character character) {
-}
+record IndexedCharacter(int index, Character character) {}
 
-/**
- * Represents an n-gram, which is a sequence of n characters. This class is
- * immutable.
- */
+/** Represents an n-gram, which is a sequence of n characters. This class is immutable. */
 public final class NGram implements Iterable<IndexedCharacter> {
   private final List<Character> ngram;
   private final Set<Character> charset;
 
   /**
-   * Private constructor to initialize the NGram. Use the static factory methods
-   * to create instances
+   * Private constructor to initialize the NGram. Use the static factory methods to create instances
    * of NGram.
    */
   private NGram(ArrayList<Character> ngram, Set<Character> charset) {
@@ -46,10 +41,8 @@ public final class NGram implements Iterable<IndexedCharacter> {
         throws IllegalArgumentException {
       boolean valid = ngram.stream().allMatch(c -> c != null);
 
-      if (valid)
-        return ngram;
-      else
-        throw new IllegalArgumentException("Character cannot be null");
+      if (valid) return ngram;
+      else throw new IllegalArgumentException("Character cannot be null");
     }
   }
 
@@ -58,7 +51,7 @@ public final class NGram implements Iterable<IndexedCharacter> {
    *
    * @param characters the List of Characters to create the NGram from
    * @return a new NGram instance
-   * @throws NullPointerException     if the argument is null
+   * @throws NullPointerException if the argument is null
    * @throws IllegalArgumentException if any character in the argument is null
    */
   public static final NGram from(List<Character> characters) throws IllegalArgumentException {
@@ -72,7 +65,6 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * Creates a new NGram from a String.
    *
    * @param word the String to create the NGram from
-   *
    * @return a new NGram instance
    * @throws NullPointerException if the argument is null
    */
@@ -107,8 +99,7 @@ public final class NGram implements Iterable<IndexedCharacter> {
   }
 
   /**
-   * Checks if the given IndexedCharacter matches the character at its index in
-   * this NGram.
+   * Checks if the given IndexedCharacter matches the character at its index in this NGram.
    *
    * @param c the IndexedCharacter to check
    * @return true if the character matches at the given index, false otherwise
@@ -132,13 +123,11 @@ public final class NGram implements Iterable<IndexedCharacter> {
   }
 
   /**
-   * Checks if the character of the given IndexedCharacter is present in this
-   * NGram at a different
+   * Checks if the character of the given IndexedCharacter is present in this NGram at a different
    * index.
    *
    * @param c the IndexedCharacter to check
-   * @return true if the character is present at a different index, false
-   *         otherwise
+   * @return true if the character is present at a different index, false otherwise
    */
   public boolean containsElsewhere(IndexedCharacter c) {
     for (int i = 0; i < ngram.size(); i++) {
@@ -168,8 +157,7 @@ public final class NGram implements Iterable<IndexedCharacter> {
   }
 
   /**
-   * Unused stub for iterator. This is not used and is only here to comply with
-   * assignment
+   * Unused stub for iterator. This is not used and is only here to comply with assignment
    * requirements.
    */
   public final class Iterator implements java.util.Iterator<IndexedCharacter> {
@@ -186,10 +174,8 @@ public final class NGram implements Iterable<IndexedCharacter> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null || getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
     NGram other = (NGram) obj;
     return ngram.equals(other.ngram);
   }
