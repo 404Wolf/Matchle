@@ -68,6 +68,7 @@ public final class Corpus implements Iterable<NGram> {
    * <h2>Example</h2>
    *
    * <pre>
+   *
    * Corpus corpus = new Corpus.Builder()
    *     .addNGram(new NGram("word"))
    *     .addNGram(new NGram("test"))
@@ -77,19 +78,23 @@ public final class Corpus implements Iterable<NGram> {
    * @return A new {@code Builder} object that can be used to create a new {@code Corpus} object.
    */
   public static final class Builder {
-    private final Set<NGram> corpus = new HashSet<>();
-    public static final Builder EMPTY = new Builder();
+    private final Set<NGram> ngrams;
+    public static final Builder EMPTY = new Builder(new HashSet<>());
+
+    private Builder(Set<NGram> ngrams) {
+      this.ngrams = ngrams;
+    }
 
     /**
      * Adds an n-gram to the corpus.
      *
      * @param nGram the n-gram to add
      * @throws NullPointerException if the n-gram is null
+     * @return this Builder instance for method chaining
      */
     public Builder add(NGram nGram) throws NullPointerException {
       Objects.requireNonNull(nGram, "nGram cannot be null");
-
-      corpus.add(nGram);
+      ngrams.add(nGram);
       return this;
     }
 
@@ -97,18 +102,23 @@ public final class Corpus implements Iterable<NGram> {
      * Adds all n-grams from the given collection to the corpus.
      *
      * @param nGrams the collection of n-grams to add
-     * @throws NullPointerException if the collection is null or contains null elements
+     * @throws NullPointerException if the collection is null
      * @return this Builder instance for method chaining
      */
     public Builder addAll(Collection<NGram> nGrams) throws NullPointerException {
       Objects.requireNonNull(nGrams, "nGrams collection cannot be null");
-
-      for (NGram nGram : nGrams) {
-        Objects.requireNonNull(nGram, "nGrams collection cannot contain null elements");
-        corpus.add(nGram);
-      }
-
+      nGrams.stream().filter(Objects::nonNull).forEach(ngrams::add);
       return this;
+    }
+
+    /**
+     * Checks if all n-grams in the corpus have the specified word size.
+     *
+     * @param wordSize the size to check against
+     * @return true if all n-grams have the specified word size, false otherwise
+     */
+    public boolean isConsistent(Integer wordSize) {
+      return ngrams.stream().allMatch(ngram -> ngram.size() == wordSize);
     }
 
     /**
@@ -117,10 +127,10 @@ public final class Corpus implements Iterable<NGram> {
      * @return a copy of new Corpus, or null if not all n-grams are the same size.
      */
     public Corpus build() {
-      boolean allSameLen = corpus.stream().map(NGram::size).distinct().count() == 1;
-
-      if (allSameLen) return new Corpus(corpus);
-      else return null;
+      if (ngrams.isEmpty() || ngrams.stream().map(NGram::size).distinct().count() == 1) {
+        return new Corpus(new HashSet<>(ngrams));
+      }
+      return null;
     }
 
     /**
@@ -130,10 +140,11 @@ public final class Corpus implements Iterable<NGram> {
      * @param corpus The Corpus you want a Builder for.
      */
     public static final Builder of(Corpus corpus) {
-      Builder builder = new Builder();
-      for (NGram nGram : corpus) builder.add(nGram);
+      Builder builder = new Builder(new HashSet<>());
+      for (NGram nGram : corpus) {
+        builder.add(nGram);
+      }
       return builder;
     }
   }
-  ;
 }
