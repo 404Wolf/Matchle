@@ -67,10 +67,10 @@ class NGramTest {
   @Test
   void testMatches() {
     NGram ngram = NGram.from("test");
-    assertTrue(ngram.matches(new NGram.IndexedCharacter(0, 't')));
-    assertTrue(ngram.matches(new NGram.IndexedCharacter(1, 'e')));
-    assertFalse(ngram.matches(new NGram.IndexedCharacter(0, 'e')));
-    assertFalse(ngram.matches(new NGram.IndexedCharacter(4, 't')));
+    assertTrue(ngram.matches(new IndexedCharacter(0, 't')));
+    assertTrue(ngram.matches(new IndexedCharacter(1, 'e')));
+    assertFalse(ngram.matches(new IndexedCharacter(0, 'e')));
+    assertFalse(ngram.matches(new IndexedCharacter(4, 't')));
   }
 
   @Test
@@ -85,30 +85,30 @@ class NGramTest {
   @Test
   void testContainsElsewhere() {
     NGram ngram = NGram.from("tester");
-    assertTrue(ngram.containsElsewhere(new NGram.IndexedCharacter(0, 't')));
-    assertFalse(ngram.containsElsewhere(new NGram.IndexedCharacter(2, 's')));
+    assertTrue(ngram.containsElsewhere(new IndexedCharacter(0, 't')));
+    assertFalse(ngram.containsElsewhere(new IndexedCharacter(2, 's')));
   }
 
   @Test
   void testStream() {
     NGram ngram = NGram.from("test");
-    List<NGram.IndexedCharacter> chars = ngram.stream().collect(Collectors.toList());
+    List<IndexedCharacter> chars = ngram.stream().collect(Collectors.toList());
     assertEquals(4, chars.size());
-    assertEquals(new NGram.IndexedCharacter(0, 't'), chars.get(0));
-    assertEquals(new NGram.IndexedCharacter(1, 'e'), chars.get(1));
-    assertEquals(new NGram.IndexedCharacter(2, 's'), chars.get(2));
-    assertEquals(new NGram.IndexedCharacter(3, 't'), chars.get(3));
+    assertEquals(new IndexedCharacter(0, 't'), chars.get(0));
+    assertEquals(new IndexedCharacter(1, 'e'), chars.get(1));
+    assertEquals(new IndexedCharacter(2, 's'), chars.get(2));
+    assertEquals(new IndexedCharacter(3, 't'), chars.get(3));
   }
 
   @Test
   void testIterator() {
     NGram ngram = NGram.from("test");
-    Iterator<NGram.IndexedCharacter> iterator = ngram.iterator();
+    Iterator<IndexedCharacter> iterator = ngram.iterator();
     assertTrue(iterator.hasNext());
-    assertEquals(new NGram.IndexedCharacter(0, 't'), iterator.next());
-    assertEquals(new NGram.IndexedCharacter(1, 'e'), iterator.next());
-    assertEquals(new NGram.IndexedCharacter(2, 's'), iterator.next());
-    assertEquals(new NGram.IndexedCharacter(3, 't'), iterator.next());
+    assertEquals(new IndexedCharacter(0, 't'), iterator.next());
+    assertEquals(new IndexedCharacter(1, 'e'), iterator.next());
+    assertEquals(new IndexedCharacter(2, 's'), iterator.next());
+    assertEquals(new IndexedCharacter(3, 't'), iterator.next());
     assertFalse(iterator.hasNext());
   }
 
