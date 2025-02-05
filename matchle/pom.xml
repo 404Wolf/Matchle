@@ -6,7 +6,6 @@
   <groupId>com._404wolf.matchle</groupId>
   <artifactId>matchle</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>matchle</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
