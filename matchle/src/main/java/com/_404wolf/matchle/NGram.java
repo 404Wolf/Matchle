@@ -28,21 +28,46 @@ public final class NGram implements Iterable<IndexedCharacter> {
 
   /** Exception thrown when a null character is encountered in NGram creation. */
   public static final class NullCharacterException extends Exception {
-    private static final long serialVersionUID = 551319026458417050L;
+    private static final long serialVersionUID = 1234567890L;
+    private final int index;
+
+    /**
+     * Constructs a new NullCharacterException with the specified index.
+     *
+     * @param index the position of the null character
+     */
+    public NullCharacterException(int index) {
+      super("Null character found at index: " + index);
+      this.index = index;
+    }
+
+    /**
+     * Gets the index of the null character.
+     *
+     * @return the index where the null character was found
+     */
+    public int getIndex() {
+      return index;
+    }
 
     /**
      * Validates a list of characters, ensuring none are null.
      *
      * @param ngram the list of characters to validate
      * @return the validated list of characters
+     * @throws NullPointerException if the argument is null
      * @throws IllegalArgumentException if any character in the argument is null
      */
-    public static final List<Character> validate(List<Character> ngram)
-        throws IllegalArgumentException {
-      boolean valid = ngram.stream().allMatch(c -> c != null);
+    public static final List<Character> validate(List<Character> ngram) {
+      Objects.requireNonNull(ngram, "NGram list cannot be null");
 
-      if (valid) return ngram;
-      else throw new IllegalArgumentException("Character cannot be null");
+      for (int i = 0; i < ngram.size(); i++) {
+        if (ngram.get(i) == null) {
+          throw new IllegalArgumentException(new NullCharacterException(i));
+        }
+      }
+
+      return ngram;
     }
   }
 
