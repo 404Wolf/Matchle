@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -79,10 +80,13 @@ public final class Corpus implements Iterable<NGram> {
    */
   public static final class Builder {
     private final Set<NGram> ngrams;
-    public static final Builder EMPTY = new Builder(new HashSet<>());
 
     private Builder(Set<NGram> ngrams) {
       this.ngrams = ngrams;
+    }
+
+    public static final Builder EMPTY() {
+      return new Builder(new HashSet<>());
     }
 
     /**
@@ -127,10 +131,10 @@ public final class Corpus implements Iterable<NGram> {
      * @return a copy of new Corpus, or null if not all n-grams are the same size.
      */
     public Corpus build() {
-      if (ngrams.isEmpty() || ngrams.stream().map(NGram::size).distinct().count() == 1) {
-        return new Corpus(new HashSet<>(ngrams));
-      }
-      return null;
+      return Optional.of(ngrams)
+          .filter(list -> list.stream().map(NGram::size).distinct().count() <= 1)
+          .map(list -> new Corpus(new HashSet<>(list)))
+          .orElse(null);
     }
 
     /**

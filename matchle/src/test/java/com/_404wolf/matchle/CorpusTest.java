@@ -12,16 +12,16 @@ class CorpusTest {
 
   @Test
   void testCorpusCreation() {
-    Corpus corpus = new Corpus.Builder().add(NGram.from("word")).add(NGram.from("test")).build();
+    Corpus corpus = Corpus.Builder.EMPTY().add(NGram.from("word")).add(NGram.from("test")).build();
 
     assertNotNull(corpus);
-    assertEquals(2, corpus.getCorpus().size());
+    assertEquals(2, corpus.corpus().size());
   }
 
   @Test
   void testCorpusWithDifferentSizedNGrams() {
     Corpus corpus =
-        new Corpus.Builder()
+        Corpus.Builder.EMPTY()
             .add(NGram.from("word"))
             .add(NGram.from("test"))
             .add(NGram.from("longword"))
@@ -32,23 +32,23 @@ class CorpusTest {
 
   @Test
   void testCorpusCopy() {
-    Corpus corpus = new Corpus.Builder().add(NGram.from("word")).add(NGram.from("test")).build();
+    Corpus corpus = Corpus.Builder.EMPTY().add(NGram.from("word")).add(NGram.from("test")).build();
 
     Set<NGram> copiedCorpus = corpus.corpus();
-    assertEquals(corpus.getCorpus(), copiedCorpus);
-    assertNotSame(corpus.getCorpus(), copiedCorpus);
+    assertEquals(corpus.corpus(), copiedCorpus);
+    assertNotSame(corpus.corpus(), copiedCorpus);
   }
 
   @Test
   void testWordSize() {
-    Corpus corpus = new Corpus.Builder().add(NGram.from("word")).add(NGram.from("test")).build();
+    Corpus corpus = Corpus.Builder.EMPTY().add(NGram.from("word")).add(NGram.from("test")).build();
 
     assertEquals(4, corpus.wordSize());
   }
 
   @Test
   void testIterator() {
-    Corpus corpus = new Corpus.Builder().add(NGram.from("word")).add(NGram.from("test")).build();
+    Corpus corpus = Corpus.Builder.EMPTY().add(NGram.from("word")).add(NGram.from("test")).build();
 
     Iterator<NGram> iterator = corpus.iterator();
     assertTrue(iterator.hasNext());
@@ -62,47 +62,32 @@ class CorpusTest {
   void testBuilderAddAll() {
     Set<NGram> nGrams = new HashSet<>(Arrays.asList(NGram.from("word"), NGram.from("test")));
 
-    Corpus corpus = new Corpus.Builder().addAll(nGrams).build();
+    Corpus corpus = Corpus.Builder.EMPTY().addAll(nGrams).build();
 
     assertNotNull(corpus);
-    assertEquals(2, corpus.getCorpus().size());
+    assertEquals(2, corpus.corpus().size());
   }
 
   @Test
-  void testBuilderAddAllWithNull() {
-    assertThrows(
-        NullPointerException.class,
-        () -> {
-          new Corpus.Builder().addAll(null);
-        });
-  }
-
-  @Test
-  void testBuilderAddAllWithNullElement() {
-    Set<NGram> nGrams = new HashSet<>(Arrays.asList(NGram.from("word"), null));
-
-    assertThrows(
-        NullPointerException.class,
-        () -> {
-          new Corpus.Builder().addAll(nGrams);
-        });
+  void testAddNullNGram() {
+    assertThrows(NullPointerException.class, () -> Corpus.Builder.EMPTY().add(null));
   }
 
   @Test
   void testBuilderOf() {
     Corpus originalCorpus =
-        new Corpus.Builder().add(NGram.from("word")).add(NGram.from("test")).build();
+        Corpus.Builder.EMPTY().add(NGram.from("word")).add(NGram.from("test")).build();
 
     Corpus.Builder builder = Corpus.Builder.of(originalCorpus);
     Corpus newCorpus = builder.build();
 
     assertNotNull(newCorpus);
-    assertEquals(originalCorpus.getCorpus(), newCorpus.getCorpus());
+    assertEquals(originalCorpus.corpus(), newCorpus.corpus());
   }
 
   @Test
   void testEmptyBuilder() {
-    Corpus corpus = Corpus.Builder.EMPTY.build();
-    assertNull(corpus);
+    Corpus corpus = Corpus.Builder.EMPTY().build();
+    assertNotNull(corpus);
   }
 }
