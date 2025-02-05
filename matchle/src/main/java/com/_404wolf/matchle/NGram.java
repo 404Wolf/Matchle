@@ -33,6 +33,8 @@ public final class NGram implements Iterable<IndexedCharacter> {
 
   /** Exception thrown when a null character is encountered in NGram creation. */
   public static final class NullCharacterException extends Exception {
+    private static final long serialVersionUID = 551319026458417050L;
+
     /**
      * Validates a list of characters, ensuring none are null.
      *
@@ -70,6 +72,7 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * Creates a new NGram from a String.
    *
    * @param word the String to create the NGram from
+   *
    * @return a new NGram instance
    * @throws NullPointerException if the argument is null
    */
