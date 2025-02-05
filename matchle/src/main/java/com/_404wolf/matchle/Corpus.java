@@ -149,4 +149,16 @@ public final class Corpus implements Iterable<NGram> {
       return builder;
     }
   }
+
+  /**
+   * Figure out how many valid n-grams there are in the corpus that pass filter tests.
+   *
+   * <p>For example, a Corpus containing “route”, “rebus”, “redux”, and “hello” would return 2
+   * because “rebus” and “redux” are the two n-grams consistent with the ﬁlter.
+   *
+   * @return The number of n-grams consistent with the filter.
+   */
+  public long size(Filter filter) {
+    return corpus.stream().filter(filter::test).count();
+  }
 }

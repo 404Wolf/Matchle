@@ -13,9 +13,6 @@ import java.util.function.Predicate;
  * logical operations.
  */
 public final class Filter {
-  /** The predicate used for filtering NGrams */
-  private final Predicate<NGram> predicate;
-
   /**
    * Returns a Filter that always evaluates to false for any NGram.
    *
@@ -23,15 +20,6 @@ public final class Filter {
    */
   public static final Filter FALSE() {
     return Filter.from((n) -> false);
-  }
-
-  /**
-   * Private constructor to create a new Filter with the given predicate.
-   *
-   * @param predicate the predicate to use for filtering
-   */
-  private Filter(Predicate<NGram> predicate) {
-    this.predicate = predicate;
   }
 
   /**
@@ -44,6 +32,22 @@ public final class Filter {
   public static Filter from(Predicate<NGram> predicate) {
     Objects.requireNonNull(predicate);
     return new Filter(predicate);
+  }
+
+  /** The predicate used for filtering NGrams */
+  private final Predicate<NGram> predicate;
+
+  /**
+   * Private constructor to create a new Filter with the given predicate.
+   *
+   * @param predicate the predicate to use for filtering
+   */
+  private Filter(Predicate<NGram> predicate) {
+    this.predicate = predicate;
+  }
+
+  public boolean test(NGram ngram) {
+    return predicate.test(ngram);
   }
 
   /**
