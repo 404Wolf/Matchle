@@ -2,6 +2,7 @@ package com._404wolf.matchle;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -21,9 +22,9 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * Private constructor to initialize the NGram. Use the static factory methods to create instances
    * of NGram.
    */
-  private NGram(ArrayList<Character> ngram, Set<Character> charset) {
+  private NGram(ArrayList<Character> ngram) {
     this.ngram = Collections.unmodifiableList(ngram);
-    this.charset = Collections.unmodifiableSet(charset);
+    this.charset = Collections.unmodifiableSet(new HashSet<Character>(ngram));
   }
 
   /** Exception thrown when a null character is encountered in NGram creation. */
@@ -82,8 +83,7 @@ public final class NGram implements Iterable<IndexedCharacter> {
   public static final NGram from(List<Character> characters) throws IllegalArgumentException {
     Objects.requireNonNull(characters, "Character list cannot be null");
 
-    return new NGram(
-        new ArrayList<>(NullCharacterException.validate(characters)), Set.copyOf(characters));
+    return new NGram(new ArrayList<>(NullCharacterException.validate(characters)));
   }
 
   /**

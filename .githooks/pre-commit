@@ -3,3 +3,4 @@
 cd matchle || exit 1
 mvn compile
 nix fmt
+git add -u
