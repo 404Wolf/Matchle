@@ -62,11 +62,13 @@ public final class NGram implements Iterable<IndexedCharacter> {
     public static final List<Character> validate(List<Character> ngram) {
       Objects.requireNonNull(ngram, "NGram list cannot be null");
 
-      for (int i = 0; i < ngram.size(); i++) {
-        if (ngram.get(i) == null) {
-          throw new IllegalArgumentException(new NullCharacterException(i));
-        }
-      }
+      IntStream.range(0, ngram.size())
+          .filter(i -> ngram.get(i) == null)
+          .findFirst()
+          .ifPresent(
+              i -> {
+                throw new IllegalArgumentException(new NullCharacterException(i));
+              });
 
       return ngram;
     }
@@ -108,10 +110,7 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * @throws IndexOutOfBoundsException if the index is out of range
    */
   public Character get(int index) throws IndexOutOfBoundsException {
-    if (index < 0 || index >= ngram.size()) {
-      throw new IndexOutOfBoundsException("Index out of range: " + index);
-    }
-    return ngram.get(index);
+    return ngram.get(Objects.checkIndex(index, ngram.size()));
   }
 
   /**
@@ -130,9 +129,9 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * @return true if the character matches at the given index, false otherwise
    */
   public boolean matches(IndexedCharacter c) {
-    if (0 <= c.index() && c.index() < ngram.size()) {
-      return ngram.get(c.index()).equals(c.character());
-    } else {
+    try {
+      return ngram.get(Objects.checkIndex(c.index(), ngram.size())).equals(c.character());
+    } catch (IndexOutOfBoundsException e) {
       return false;
     }
   }
@@ -155,12 +154,10 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * @return true if the character is present at a different index, false otherwise
    */
   public boolean containsElsewhere(IndexedCharacter c) {
-    for (int i = 0; i < ngram.size(); i++) {
-      if (i != c.index() && ngram.get(i).equals(c.character())) {
-        return true;
-      }
-    }
-    return false;
+    return IntStream.range(0, ngram.size())
+        .filter(i -> i != c.index()) // get all the "wrong" elements
+        .mapToObj(i -> ngram.get(i)) // map them to ngrams
+        .anyMatch(ch -> ch.equals(c.character())); // make sure that they aren't ours
   }
 
   /**
@@ -181,8 +178,6 @@ public final class NGram implements Iterable<IndexedCharacter> {
         .iterator();
   }
 
-  // TODO add Iterator subclass anyway (sub fine)
-
   /**
    * Unused stub for iterator. This is not used and is only here to comply with assignment
    * requirements.
@@ -201,10 +196,25 @@ public final class NGram implements Iterable<IndexedCharacter> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
-    NGram other = (NGram) obj;
-    return ngram.equals(other.ngram);
+    // Boolean.compare returns 1 if a is true and b is false, or 0 if a equals b
+
+    // Check if objects refer to same memory location
+    int sameReference = Boolean.compare(this == obj, false); // 1 or 0
+
+    // Check if obj is same type using Objects.equals() for null safety
+    int sameClass =
+        Boolean.compare(
+            Objects.equals(
+                getClass(), Objects.requireNonNull(obj, "other object is null").getClass()),
+            false);
+
+    // Check if contents are equal using Objects.equals()
+    int sameContent = Boolean.compare(Objects.equals(ngram, ((NGram) obj).ngram), false);
+
+    // Combine results (multiplication for AND, addition for OR)
+    return (sameReference + (sameClass * sameContent)) > 0;
+    // sameClass * sameContent --> sameClass OR sameContent (if either false then *
+    // becomes 0)
   }
 
   @Override

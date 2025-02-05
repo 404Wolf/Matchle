@@ -145,9 +145,7 @@ public final class Corpus implements Iterable<NGram> {
      */
     public static final Builder of(Corpus corpus) {
       Builder builder = new Builder(new HashSet<>());
-      for (NGram nGram : corpus) {
-        builder.add(nGram);
-      }
+      corpus.forEach(builder::add);
       return builder;
     }
   }
