@@ -83,7 +83,6 @@ final class NGramMatcher {
                   case CharAbsent ->
                       Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()));
                 })
-        .peek(filter -> System.out.println(filter))
         .reduce((f1, f2) -> f1.and(Optional.of(f2)))
         .orElse(Filter.FALSE());
   }
