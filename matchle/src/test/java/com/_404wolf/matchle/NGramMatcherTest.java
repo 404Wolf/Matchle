@@ -44,6 +44,7 @@ class NGramMatcherTest {
 
     assertEquals(
         "CharMatch, CharAbsent, CharElsewhere, CharAbsent, CharElsewhere", matcher.toString());
+    assertEquals(matcher.toString().split(" ").length, key.size(), guess.size());
   }
 
   @Test
