@@ -59,7 +59,7 @@ class NGramMatcherTest {
     NGramMatcher matcher = NGramMatcher.of(key, guess);
     Filter result = matcher.match();
 
-    // Should return Filter.FALSE() for different lengths
+    // Should return Filter.FALSE for different lengths
     assertFalse(result.test(key));
   }
 
@@ -70,11 +70,11 @@ class NGramMatcherTest {
     NGramMatcher matcher = NGramMatcher.of(key, guess);
     Filter filter = matcher.match();
 
-    // Test that it behaves the same as Filter.FALSE()
+    // Test that it behaves the same as Filter.FALSE
     NGram testInput1 = NGram.from("pearl");
     NGram testInput2 = NGram.from("pearls");
-    assertEquals(Filter.FALSE().test(testInput1), filter.test(testInput1));
-    assertEquals(Filter.FALSE().test(testInput2), filter.test(testInput2));
+    assertEquals(Filter.FALSE.test(testInput1), filter.test(testInput1));
+    assertEquals(Filter.FALSE.test(testInput2), filter.test(testInput2));
   }
 
   @Test

@@ -12,13 +12,19 @@ import java.util.function.Predicate;
  * from()} with a predicate, and includes methods for combining filters through logical operations.
  */
 public final class Filter {
+  /** The predicate used for filtering NGrams */
+  private final Predicate<NGram> predicate;
+
+  /** Filter that always evaluates to false for any NGram. */
+  public static final Filter FALSE = Filter.from((n) -> false);
+
   /**
-   * Returns a Filter that always evaluates to false for any NGram.
+   * Private constructor to create a new Filter with the given predicate.
    *
-   * @return a Filter that always returns false
+   * @param predicate the predicate to use for filtering
    */
-  public static final Filter FALSE() {
-    return Filter.from((n) -> false);
+  private Filter(Predicate<NGram> predicate) {
+    this.predicate = predicate;
   }
 
   /**
@@ -31,18 +37,6 @@ public final class Filter {
   public static Filter from(Predicate<NGram> predicate) {
     Objects.requireNonNull(predicate);
     return new Filter(predicate);
-  }
-
-  /** The predicate used for filtering NGrams */
-  private final Predicate<NGram> predicate;
-
-  /**
-   * Private constructor to create a new Filter with the given predicate.
-   *
-   * @param predicate the predicate to use for filtering
-   */
-  private Filter(Predicate<NGram> predicate) {
-    this.predicate = predicate;
   }
 
   public boolean test(NGram ngram) {

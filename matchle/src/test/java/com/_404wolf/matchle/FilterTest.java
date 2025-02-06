@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 class FilterTest {
 
   @Test
-  void testFALSE() {
-    Filter falseFilter = Filter.FALSE();
+  void testFalse() {
+    Filter falseFilter = Filter.FALSE;
     NGram testNGram = NGram.from("test");
     assertFalse(falseFilter.test(testNGram));
   }
