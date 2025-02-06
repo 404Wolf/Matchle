@@ -221,4 +221,9 @@ public final class NGram implements Iterable<IndexedCharacter> {
   public int hashCode() {
     return ngram.hashCode();
   }
+
+  @Override
+  public String toString() {
+    return ngram.stream().map(String::valueOf).collect(Collectors.joining());
+  }
 }
