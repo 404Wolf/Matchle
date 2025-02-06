@@ -90,6 +90,20 @@ public final class Corpus implements Iterable<NGram> {
     }
 
     /**
+     * Filters the n-grams in the corpus using the given filter, providing a new Builder only with
+     * passing n-grams.
+     *
+     * @returns a builder with the n-grams that are consistent with the filter
+     */
+    public Builder filter(Filter filter) {
+      Set<NGram> filteredNgrams = new HashSet<>();
+      ngrams.stream().filter(filter::test).forEach(filteredNgrams::add);
+
+      return Builder.of(new Corpus(filteredNgrams));
+    }
+    ;
+
+    /**
      * Adds an n-gram to the corpus.
      *
      * @param nGram the n-gram to add

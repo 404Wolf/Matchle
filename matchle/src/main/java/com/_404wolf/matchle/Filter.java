@@ -8,9 +8,8 @@ import java.util.function.Predicate;
  * Represents a predicate for filtering n-grams in a corpus. This class encapsulates filtering logic
  * for n-grams and provides methods for combining filters using logical operations.
  *
- * <p>A Filter instance is immutable and thread-safe. It can be created using the static factory
- * method {@code from()} with a predicate, and includes methods for combining filters through
- * logical operations.
+ * <p>A Filter instance is immutable, and can be created using the static factory method {@code
+ * from()} with a predicate, and includes methods for combining filters through logical operations.
  */
 public final class Filter {
   /**
