@@ -67,10 +67,10 @@ final class NGramMatcher {
         .orElseThrow(() -> new IllegalArgumentException("can't match multiple times"));
 
     try {
-      return Optional.of(Filter.FALSE())
+      return Optional.of(Filter.FALSE)
           .filter(b -> key.size() == guess.size()) // Check if the n-grams have the same length
           .map(b -> buildMatchFilter()) // Build the match filter if conditions met
-          .orElse(Filter.FALSE()); // Return FALSE if lengths don't match
+          .orElse(Filter.FALSE); // Return FALSE if lengths don't match
     } finally {
       matched = true;
     }
@@ -109,7 +109,7 @@ final class NGramMatcher {
         // report
         .reduce((acc, cur) -> acc.and(Optional.of(cur)))
         // reduces to an optional in case reduce fails (e.g. no items in list)
-        .orElse(Filter.FALSE()); // fall back to false
+        .orElse(Filter.FALSE); // fall back to false
   }
 
   private IntStream guessIndexStream() {
