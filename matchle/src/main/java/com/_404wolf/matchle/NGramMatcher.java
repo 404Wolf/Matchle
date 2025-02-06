@@ -1,10 +1,13 @@
 package com._404wolf.matchle;
 
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -70,21 +73,24 @@ final class NGramMatcher {
    *
    * @return a Predicate that combines all matching conditions with logical AND
    */
+  private static final EnumMap<MatchReportStatus, Function<MatchReport, Filter>> FILTER_STRATEGIES =
+      new EnumMap<>(
+          Map.of(
+              MatchReportStatus.CharMatch,
+              report -> Filter.from(ngram -> ngram.matches(report.indexedCharacter())),
+              MatchReportStatus.CharElsewhere,
+              report -> Filter.from(ngram -> ngram.containsElsewhere(report.indexedCharacter())),
+              MatchReportStatus.CharAbsent,
+              report ->
+                  Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()))));
+
   private Filter buildMatchFilter() {
     matchSamePosition().matchDifferentPositions().matchAbsentCharacters();
 
     return reports.stream()
-        .map(
-            report ->
-                switch (report.status()) {
-                  case CharMatch -> Filter.from(ngram -> ngram.matches(report.indexedCharacter()));
-                  case CharElsewhere ->
-                      Filter.from(ngram -> ngram.containsElsewhere(report.indexedCharacter()));
-                  case CharAbsent ->
-                      Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()));
-                })
+        .map(report -> FILTER_STRATEGIES.get(report.status()).apply(report))
         .reduce((f1, f2) -> f1.and(Optional.of(f2)))
-        .orElse(Filter.FALSE());
+        .orElse(Filter.FALSE()); // fall back to false
   }
 
   private IntStream guessIndexStream() {
