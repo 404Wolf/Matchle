@@ -167,7 +167,7 @@ final class NGramMatcher {
                       j -> {
                         matchedKeys[j] =
                             true; // we matched the "elsewhere" char we assigned matchedGuesses[i]
-                                  // to
+                        // to
                         matchedGuesses[i] = true; // we matched the current guess
                         reports.add(
                             new MatchReport(

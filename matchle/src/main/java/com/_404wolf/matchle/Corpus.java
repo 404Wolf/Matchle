@@ -14,10 +14,6 @@ import java.util.Set;
 public final class Corpus implements Iterable<NGram> {
   private final Set<NGram> corpus;
 
-  public Set<NGram> getCorpus() {
-    return corpus;
-  }
-
   private Corpus(Set<NGram> corpus) {
     Objects.requireNonNull(corpus, "Corpus cannot be null");
 
