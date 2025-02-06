@@ -34,6 +34,9 @@ final class NGramMatcher {
   private final List<MatchReport> reports = new LinkedList<>();
 
   private boolean matched = false;
+  private boolean matchedSamePosition = false;
+  private boolean matchedDifferentPositions = false;
+  private boolean matchedAbsentCharacters = false;
 
   private NGramMatcher(NGram key, NGram guess) {
     this.key = key;
@@ -59,11 +62,18 @@ final class NGramMatcher {
    *     different lengths
    */
   public Filter match() {
-    return Optional.of(!matched)
-        .filter(b -> b)
-        .filter(ng -> key.size() == guess.size()) // return a false filter if sizes mismatch
-        .map(b -> buildMatchFilter())
-        .orElse(Filter.FALSE());
+    Optional.of(matched)
+        .filter(isMatched -> !isMatched) // if we have NOT matched, "keep it" and then don't throw
+        .orElseThrow(() -> new IllegalArgumentException("can't match multiple times"));
+
+    try {
+      return Optional.of(Filter.FALSE())
+          .filter(b -> key.size() == guess.size()) // Check if the n-grams have the same length
+          .map(b -> buildMatchFilter()) // Build the match filter if conditions met
+          .orElse(Filter.FALSE()); // Return FALSE if lengths don't match
+    } finally {
+      matched = true;
+    }
   }
 
   /**
@@ -85,11 +95,20 @@ final class NGramMatcher {
                   Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()))));
 
   private Filter buildMatchFilter() {
+    // At this point we should not have matched already
+    assert !matched : "Match filter already built";
+    assert !matchedSamePosition : "Same positions already matched";
+    assert !matchedDifferentPositions : "Different positions already matched";
+    assert !matchedAbsentCharacters : "Absent characters already matched";
+
     matchSamePosition().matchDifferentPositions().matchAbsentCharacters();
 
     return reports.stream()
         .map(report -> FILTER_STRATEGIES.get(report.status()).apply(report))
-        .reduce((f1, f2) -> f1.and(Optional.of(f2)))
+        // ^ The function that we add to filters list is based on the status of the
+        // report
+        .reduce((acc, cur) -> acc.and(Optional.of(cur)))
+        // reduces to an optional in case reduce fails (e.g. no items in list)
         .orElse(Filter.FALSE()); // fall back to false
   }
 
@@ -103,18 +122,26 @@ final class NGramMatcher {
    * index for the filters.
    */
   private NGramMatcher matchSamePosition() {
+    // We shouldn't have matched already, and the arrays should start as emtpy (all
+    // false)
+    assert !matched : "Match filter already built";
+    assert !matchedSamePosition : "Same positions already matched";
+    assert guessIndexStream().mapToObj(i -> matchedKeys[i]).allMatch(b -> !b)
+        : "Matched keys should all be false";
+
     guessIndexStream()
         .filter(i -> guess.get(i) == key.get(i)) // only keep exact matches
         .forEach(
             i -> {
-              final char keyChar = key.get(i);
               reports.add(
-                  new MatchReport(new IndexedCharacter(i, keyChar), MatchReportStatus.CharMatch));
+                  new MatchReport(
+                      new IndexedCharacter(i, key.get(i)), MatchReportStatus.CharMatch));
 
               matchedKeys[i] = true;
               matchedGuesses[i] = true;
             });
 
+    matchedSamePosition = true;
     return this;
   }
 
@@ -123,20 +150,25 @@ final class NGramMatcher {
    * hasn't been matched yet, if that letter shows up somewhere else in the key, mark the index in
    */
   private NGramMatcher matchDifferentPositions() {
+    assert matchedSamePosition : "Must match same positions first";
+    assert !matchedDifferentPositions : "Different positions already matched";
+
     guessIndexStream()
         .filter(i -> !matchedGuesses[i]) // make sure we haven't matched this already
         .forEach(
             i -> {
-              // For each char in the key, check if it matches our current guess char
-              // and hasn't been matched yet
+              // For each char in the guess check if it exists elsewhere
               IntStream.range(0, key.size())
-                  .filter(j -> !matchedKeys[j]) // key position not already matched
-                  .filter(j -> key.get(j) == guess.get(i)) // chars match
-                  .findFirst()
-                  .ifPresent(
+                  .filter(
+                      j -> j != i) // don't count this index, it's our own index (not "elsewhere")
+                  .filter(j -> key.get(j) == guess.get(i)) // chars match (and it's not our index)
+                  .findFirst() // get the first char that matched to "use" as the matchpoint
+                  .ifPresent( // if there was a match, handle it
                       j -> {
-                        matchedKeys[j] = true;
-                        matchedGuesses[i] = true;
+                        matchedKeys[j] =
+                            true; // we matched the "elsewhere" char we assigned matchedGuesses[i]
+                                  // to
+                        matchedGuesses[i] = true; // we matched the current guess
                         reports.add(
                             new MatchReport(
                                 new IndexedCharacter(i, guess.get(i)),
@@ -144,6 +176,7 @@ final class NGramMatcher {
                       });
             });
 
+    matchedDifferentPositions = true;
     return this;
   }
 
@@ -152,6 +185,10 @@ final class NGramMatcher {
    * that must be done here is report the character at i as absent.
    */
   private NGramMatcher matchAbsentCharacters() {
+    assert matchedSamePosition : "Must match same positions first";
+    assert matchedDifferentPositions : "Must match different positions first";
+    assert !matchedAbsentCharacters : "Absent characters already matched";
+
     guessIndexStream()
         .filter(i -> !matchedGuesses[i])
         .forEach(
@@ -160,6 +197,7 @@ final class NGramMatcher {
                     new MatchReport(
                         new IndexedCharacter(i, guess.get(i)), MatchReportStatus.CharAbsent)));
 
+    matchedAbsentCharacters = true;
     return this;
   }
 }
