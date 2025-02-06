@@ -90,4 +90,34 @@ class CorpusTest {
     Corpus corpus = Corpus.Builder.EMPTY().build();
     assertNotNull(corpus);
   }
+
+  @Test
+  void testCorpusSize() {
+    // Create a corpus with several words
+    Corpus corpus =
+        Corpus.Builder.EMPTY()
+            .add(NGram.from("route"))
+            .add(NGram.from("rebus"))
+            .add(NGram.from("redux"))
+            .add(NGram.from("hello"))
+            .build();
+
+    // Create a filter that matches words starting with "re"
+    Filter startsWithRe = Filter.from(ngram -> ngram.toString().startsWith("re"));
+
+    // Test the size method with the filter
+    assertEquals(2, corpus.size(startsWithRe));
+
+    // Test with a filter that matches nothing
+    Filter matchesNothing = Filter.from(ngram -> false);
+    assertEquals(0, corpus.size(matchesNothing));
+
+    // Test with a filter that matches everything
+    Filter matchesEverything = Filter.from(ngram -> true);
+    assertEquals(4, corpus.size(matchesEverything));
+
+    // Test with a specific pattern filter
+    Filter containsE = Filter.from(ngram -> ngram.toString().contains("e"));
+    assertEquals(4, corpus.size(containsE));
+  }
 }

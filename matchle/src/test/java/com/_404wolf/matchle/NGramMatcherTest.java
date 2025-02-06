@@ -11,7 +11,7 @@ class NGramMatcherTest {
     NGram key = NGram.from("pearl");
     NGram guess = NGram.from("plate");
     NGramMatcher matcher = NGramMatcher.of(key, guess);
-    matcher.match();
+    Filter filter = matcher.match();
 
     // Expected pattern:
     // p: CharMatch (index 0)
@@ -23,7 +23,6 @@ class NGramMatcherTest {
     assertEquals(
         "CharMatch, CharElsewhere, CharMatch, CharAbsent, CharElsewhere", matcher.toString());
 
-    Filter filter = matcher.match();
     assertTrue(filter.test(key));
     assertFalse(filter.test(guess));
   }
@@ -62,5 +61,32 @@ class NGramMatcherTest {
 
     // Should return Filter.FALSE() for different lengths
     assertFalse(result.test(key));
+  }
+
+  @Test
+  void testMatchDifferentLengths() {
+    NGram key = NGram.from("pearl");
+    NGram guess = NGram.from("pearls");
+    NGramMatcher matcher = NGramMatcher.of(key, guess);
+    Filter filter = matcher.match();
+
+    // Test that it behaves the same as Filter.FALSE()
+    NGram testInput1 = NGram.from("pearl");
+    NGram testInput2 = NGram.from("pearls");
+    assertEquals(Filter.FALSE().test(testInput1), filter.test(testInput1));
+    assertEquals(Filter.FALSE().test(testInput2), filter.test(testInput2));
+  }
+
+  @Test
+  void testMatchTwice() {
+    NGram key = NGram.from("pearl");
+    NGram guess = NGram.from("plate");
+    NGramMatcher matcher = NGramMatcher.of(key, guess);
+
+    // First match should succeed
+    matcher.match();
+
+    // Second match should throw IllegalArgumentException
+    assertThrows(IllegalArgumentException.class, () -> matcher.match());
   }
 }
