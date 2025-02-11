@@ -34,6 +34,8 @@
             jdt-language-server
             maven
             openjdk
+            (python3.withPackages (pyPkgs: with pyPkgs; [openai python-dotenv]))
+            black
           ];
         };
       };
