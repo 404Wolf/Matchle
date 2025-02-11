@@ -24,6 +24,8 @@ public final class Filter {
    * @param predicate the predicate to use for filtering
    */
   private Filter(Predicate<NGram> predicate) {
+    assert Objects.nonNull(predicate) : "predicate cannot be null";
+
     this.predicate = predicate;
   }
 
@@ -40,6 +42,8 @@ public final class Filter {
   }
 
   public boolean test(NGram ngram) {
+    Objects.requireNonNull(ngram, "ngram cannot be null");
+
     return predicate.test(ngram);
   }
 
@@ -51,6 +55,8 @@ public final class Filter {
    * @return a new Filter representing the logical AND of both filters
    */
   public Filter and(Optional<Filter> other) {
+    Objects.requireNonNull(other, "other cannot be null");
+
     return Filter.from(this.predicate.and(other.orElse(Filter.from((n) -> true)).predicate));
   }
 }

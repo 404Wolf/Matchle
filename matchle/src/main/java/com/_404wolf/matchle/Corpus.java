@@ -14,12 +14,8 @@ import java.util.Set;
 public final class Corpus implements Iterable<NGram> {
   private final Set<NGram> corpus;
 
-  public Set<NGram> getCorpus() {
-    return corpus;
-  }
-
   private Corpus(Set<NGram> corpus) {
-    Objects.requireNonNull(corpus, "Corpus cannot be null");
+    assert Objects.nonNull(corpus) : "Corpus cannot be null";
 
     this.corpus = Collections.unmodifiableSet(corpus);
   }
@@ -45,22 +41,6 @@ public final class Corpus implements Iterable<NGram> {
   @Override
   public java.util.Iterator<NGram> iterator() {
     return corpus.iterator();
-  }
-
-  /**
-   * Unused stub for iterator. This is not used and is only here to comply with assignment
-   * requirements.
-   */
-  public final class Iterator implements java.util.Iterator<NGram> {
-    @Override
-    public boolean hasNext() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public NGram next() {
-      throw new UnsupportedOperationException();
-    }
   }
 
   /**
@@ -96,6 +76,8 @@ public final class Corpus implements Iterable<NGram> {
      * @returns a builder with the n-grams that are consistent with the filter
      */
     public Builder filter(Filter filter) {
+      Objects.requireNonNull(filter, "filter cannot be null");
+
       Set<NGram> filteredNgrams = new HashSet<>();
       ngrams.stream().filter(filter::test).forEach(filteredNgrams::add);
 

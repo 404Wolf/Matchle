@@ -39,6 +39,9 @@ final class NGramMatcher {
   private boolean matchedAbsentCharacters = false;
 
   private NGramMatcher(NGram key, NGram guess) {
+    assert Objects.nonNull(key) : "key cannot be null";
+    assert Objects.nonNull(guess) : "guess cannot be null";
+
     this.key = key;
     this.guess = guess;
 

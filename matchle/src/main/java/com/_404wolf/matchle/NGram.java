@@ -178,43 +178,30 @@ public final class NGram implements Iterable<IndexedCharacter> {
         .iterator();
   }
 
-  /**
-   * Unused stub for iterator. This is not used and is only here to comply with assignment
-   * requirements.
-   */
   public final class Iterator implements java.util.Iterator<IndexedCharacter> {
+    private final java.util.Iterator<IndexedCharacter> delegate = iterator();
+
     @Override
     public boolean hasNext() {
-      throw new UnsupportedOperationException();
+      return delegate.hasNext();
     }
 
     @Override
     public IndexedCharacter next() {
-      throw new UnsupportedOperationException();
+      return delegate.next();
     }
   }
 
   @Override
   public boolean equals(Object obj) {
-    // Boolean.compare returns 1 if a is true and b is false, or 0 if a equals b
-
-    // Check if objects refer to same memory location
-    int sameReference = Boolean.compare(this == obj, false); // 1 or 0
-
-    // Check if obj is same type using Objects.equals() for null safety
-    int sameClass =
-        Boolean.compare(
-            Objects.equals(
-                getClass(), Objects.requireNonNull(obj, "other object is null").getClass()),
-            false);
-
-    // Check if contents are equal using Objects.equals()
-    int sameContent = Boolean.compare(Objects.equals(ngram, ((NGram) obj).ngram), false);
-
-    // Combine results (multiplication for AND, addition for OR)
-    return (sameReference + (sameClass * sameContent)) > 0;
-    // sameClass * sameContent --> sameClass OR sameContent (if either false then *
-    // becomes 0)
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    NGram other = (NGram) obj;
+    return Objects.equals(ngram, other.ngram);
   }
 
   @Override
