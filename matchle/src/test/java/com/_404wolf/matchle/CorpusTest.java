@@ -102,10 +102,8 @@ class CorpusTest {
             .add(NGram.from("hello"))
             .build();
 
-    // Create a filter that matches words starting with "re"
+    // Test with a filter that matches words starting with "re"
     Filter startsWithRe = Filter.from(ngram -> ngram.toString().startsWith("re"));
-
-    // Test the size method with the filter
     assertEquals(2, corpus.size(startsWithRe));
 
     // Test with a filter that matches nothing
@@ -119,5 +117,24 @@ class CorpusTest {
     // Test with a specific pattern filter
     Filter containsE = Filter.from(ngram -> ngram.toString().contains("e"));
     assertEquals(4, corpus.size(containsE));
+  }
+
+  @Test
+  void testCorpusScore() {
+    Corpus corpus =
+        Corpus.Builder.EMPTY()
+            .add(NGram.from("foo"))
+            .add(NGram.from("bar"))
+            .add(NGram.from("buz"))
+            .build();
+
+    // Now test the score
+    assertEquals(1, corpus.score(NGram.from("foo"), NGram.from("foo")));
+
+    // If the corpus is empty we should get a IllegalStateException when trying
+    // to score
+    assertThrows(
+        IllegalStateException.class,
+        () -> Corpus.Builder.EMPTY().build().score(NGram.from(""), NGram.from("")));
   }
 }

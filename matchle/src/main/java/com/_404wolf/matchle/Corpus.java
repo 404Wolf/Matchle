@@ -157,4 +157,17 @@ public final class Corpus implements Iterable<NGram> {
   public long size(Filter filter) {
     return corpus.stream().filter(filter::test).count();
   }
+
+  /**
+   * The size of the corpus that is consistent with the ﬁlter that matches the key and the guess
+   * n-grams
+   */
+  public long score(NGram key, NGram guess) {
+    if (corpus.stream().count() == 0) {
+      throw new IllegalStateException("Corpus is empty and cannot be scored");
+    } else {
+      NGramMatcher matcher = NGramMatcher.of(key, guess);
+      return size(matcher.match());
+    }
+  }
 }
