@@ -1,13 +1,10 @@
 package com._404wolf.matchle;
 
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -34,9 +31,6 @@ final class NGramMatcher {
   private final List<MatchReport> reports = new LinkedList<>();
 
   private boolean matched = false;
-  private boolean matchedSamePosition = false;
-  private boolean matchedDifferentPositions = false;
-  private boolean matchedAbsentCharacters = false;
 
   private NGramMatcher(NGram key, NGram guess) {
     assert Objects.nonNull(key) : "key cannot be null";
@@ -75,6 +69,7 @@ final class NGramMatcher {
           .map(b -> buildMatchFilter()) // Build the match filter if conditions met
           .orElse(Filter.FALSE); // Return FALSE if lengths don't match
     } finally {
+      System.out.println(this);
       matched = true;
     }
   }
@@ -86,28 +81,19 @@ final class NGramMatcher {
    *
    * @return a Predicate that combines all matching conditions with logical AND
    */
-  private static final EnumMap<MatchReportStatus, Function<MatchReport, Filter>> FILTER_STRATEGIES =
-      new EnumMap<>(
-          Map.of(
-              MatchReportStatus.CharMatch,
-              report -> Filter.from(ngram -> ngram.matches(report.indexedCharacter())),
-              MatchReportStatus.CharElsewhere,
-              report -> Filter.from(ngram -> ngram.containsElsewhere(report.indexedCharacter())),
-              MatchReportStatus.CharAbsent,
-              report ->
-                  Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()))));
-
   private Filter buildMatchFilter() {
-    // At this point we should not have matched already
-    assert !matched : "Match filter already built";
-    assert !matchedSamePosition : "Same positions already matched";
-    assert !matchedDifferentPositions : "Different positions already matched";
-    assert !matchedAbsentCharacters : "Absent characters already matched";
-
     matchSamePosition().matchDifferentPositions().matchAbsentCharacters();
 
     return reports.stream()
-        .map(report -> FILTER_STRATEGIES.get(report.status()).apply(report))
+        .map(
+            report ->
+                switch (report.status()) {
+                  case CharMatch -> Filter.from(ngram -> ngram.matches(report.indexedCharacter()));
+                  case CharElsewhere ->
+                      Filter.from(ngram -> ngram.containsElsewhere(report.indexedCharacter()));
+                  case CharAbsent ->
+                      Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()));
+                })
         // ^ The function that we add to filters list is based on the status of the
         // report
         .reduce((acc, cur) -> acc.and(Optional.of(cur)))
@@ -128,7 +114,6 @@ final class NGramMatcher {
     // We shouldn't have matched already, and the arrays should start as emtpy (all
     // false)
     assert !matched : "Match filter already built";
-    assert !matchedSamePosition : "Same positions already matched";
     assert guessIndexStream().mapToObj(i -> matchedKeys[i]).allMatch(b -> !b)
         : "Matched keys should all be false";
 
@@ -144,7 +129,6 @@ final class NGramMatcher {
               matchedGuesses[i] = true;
             });
 
-    matchedSamePosition = true;
     return this;
   }
 
@@ -153,9 +137,6 @@ final class NGramMatcher {
    * hasn't been matched yet, if that letter shows up somewhere else in the key, mark the index in
    */
   private NGramMatcher matchDifferentPositions() {
-    assert matchedSamePosition : "Must match same positions first";
-    assert !matchedDifferentPositions : "Different positions already matched";
-
     guessIndexStream()
         .filter(i -> !matchedGuesses[i]) // make sure we haven't matched this already
         .forEach(
@@ -179,7 +160,6 @@ final class NGramMatcher {
                       });
             });
 
-    matchedDifferentPositions = true;
     return this;
   }
 
@@ -188,10 +168,6 @@ final class NGramMatcher {
    * that must be done here is report the character at i as absent.
    */
   private NGramMatcher matchAbsentCharacters() {
-    assert matchedSamePosition : "Must match same positions first";
-    assert matchedDifferentPositions : "Must match different positions first";
-    assert !matchedAbsentCharacters : "Absent characters already matched";
-
     guessIndexStream()
         .filter(i -> !matchedGuesses[i])
         .forEach(
@@ -200,7 +176,6 @@ final class NGramMatcher {
                     new MatchReport(
                         new IndexedCharacter(i, guess.get(i)), MatchReportStatus.CharAbsent)));
 
-    matchedAbsentCharacters = true;
     return this;
   }
 }
