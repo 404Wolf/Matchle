@@ -3,5 +3,3 @@
 cd matchle || exit 1
 mvn compile
 mvn test
-nix fmt
-git add -u
