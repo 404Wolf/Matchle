@@ -15,15 +15,6 @@ final class NGramMatcher {
     CharAbsent
   }
 
-  private record MatchReport(IndexedCharacter indexedCharacter, MatchReportStatus status) {}
-
-  public static NGramMatcher of(NGram key, NGram guess) {
-    Objects.requireNonNull(key, "key cannot be null");
-    Objects.requireNonNull(guess, "guess cannot be null");
-
-    return new NGramMatcher(key, guess);
-  }
-
   private final NGram key;
   private final NGram guess;
   private final boolean[] matchedKeys;
@@ -31,6 +22,12 @@ final class NGramMatcher {
   private final List<MatchReport> reports = new LinkedList<>();
 
   private boolean matched = false;
+
+  private record MatchReport(IndexedCharacter indexedCharacter, MatchReportStatus status) {
+    MatchReport(int index, char character, MatchReportStatus status) {
+      this(new IndexedCharacter(index, character), status);
+    }
+  }
 
   private NGramMatcher(NGram key, NGram guess) {
     assert Objects.nonNull(key) : "key cannot be null";
@@ -41,6 +38,13 @@ final class NGramMatcher {
 
     matchedKeys = new boolean[guess.size()];
     matchedGuesses = new boolean[guess.size()];
+  }
+
+  public static NGramMatcher of(NGram key, NGram guess) {
+    Objects.requireNonNull(key, "key cannot be null");
+    Objects.requireNonNull(guess, "guess cannot be null");
+
+    return new NGramMatcher(key, guess);
   }
 
   @Override
@@ -59,9 +63,7 @@ final class NGramMatcher {
    *     different lengths
    */
   public Filter match() {
-    Optional.of(matched)
-        .filter(isMatched -> !isMatched) // if we have NOT matched, "keep it" and then don't throw
-        .orElseThrow(() -> new IllegalArgumentException("can't match multiple times"));
+    if (matched) throw new IllegalArgumentException("can't match multiple times");
 
     try {
       return Optional.of(Filter.FALSE)
@@ -101,7 +103,7 @@ final class NGramMatcher {
         .orElse(Filter.FALSE); // fall back to false
   }
 
-  private IntStream guessIndexStream() {
+  private IntStream guessIndexIntStream() {
     return IntStream.range(0, guess.size());
   }
 
@@ -114,16 +116,15 @@ final class NGramMatcher {
     // We shouldn't have matched already, and the arrays should start as emtpy (all
     // false)
     assert !matched : "Match filter already built";
-    assert guessIndexStream().mapToObj(i -> matchedKeys[i]).allMatch(b -> !b)
+    assert guessIndexIntStream().mapToObj(i -> matchedKeys[i]).allMatch(b -> !b)
         : "Matched keys should all be false";
 
-    guessIndexStream()
+    guessIndexIntStream()
         .filter(i -> guess.get(i) == key.get(i)) // only keep exact matches
         .forEach(
             i -> {
-              reports.add(
-                  new MatchReport(
-                      new IndexedCharacter(i, key.get(i)), MatchReportStatus.CharMatch));
+              MatchReport report = new MatchReport(i, key.get(i), MatchReportStatus.CharMatch);
+              reports.add(report);
 
               matchedKeys[i] = true;
               matchedGuesses[i] = true;
@@ -137,7 +138,7 @@ final class NGramMatcher {
    * hasn't been matched yet, if that letter shows up somewhere else in the key, mark the index in
    */
   private NGramMatcher matchDifferentPositions() {
-    guessIndexStream()
+    guessIndexIntStream()
         .filter(i -> !matchedGuesses[i]) // make sure we haven't matched this already
         .forEach(
             i -> {
@@ -149,14 +150,13 @@ final class NGramMatcher {
                   .findFirst() // get the first char that matched to "use" as the matchpoint
                   .ifPresent( // if there was a match, handle it
                       j -> {
-                        matchedKeys[j] =
-                            true; // we matched the "elsewhere" char we assigned matchedGuesses[i]
-                        // to
+                        // we matched the "elsewhere" char we assigned matchedGuesses[i] to
+                        matchedKeys[j] = true;
                         matchedGuesses[i] = true; // we matched the current guess
-                        reports.add(
-                            new MatchReport(
-                                new IndexedCharacter(i, guess.get(i)),
-                                MatchReportStatus.CharElsewhere));
+
+                        MatchReport report =
+                            new MatchReport(i, guess.get(i), MatchReportStatus.CharElsewhere);
+                        reports.add(report);
                       });
             });
 
@@ -168,13 +168,14 @@ final class NGramMatcher {
    * that must be done here is report the character at i as absent.
    */
   private NGramMatcher matchAbsentCharacters() {
-    guessIndexStream()
+    guessIndexIntStream()
         .filter(i -> !matchedGuesses[i])
         .forEach(
-            i ->
-                reports.add(
-                    new MatchReport(
-                        new IndexedCharacter(i, guess.get(i)), MatchReportStatus.CharAbsent)));
+            i -> {
+              MatchReport report = new MatchReport(i, guess.get(i), MatchReportStatus.CharAbsent);
+
+              reports.add(report);
+            });
 
     return this;
   }

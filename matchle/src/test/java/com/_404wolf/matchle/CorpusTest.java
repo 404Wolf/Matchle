@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.ToLongFunction;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -171,7 +170,7 @@ class CorpusTest {
   void testScoreAverageCase() {
     assertEquals(6, exampleCorpus.scoreAverageCase(NGram.from("route")));
   }
-  
+
   @Test
   void testBestWorstCaseGuess() {
     NGram bestGuess = exampleCorpus.bestWorstCaseGuess(NGram.from("route"));

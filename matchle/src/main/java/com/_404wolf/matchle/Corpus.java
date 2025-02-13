@@ -190,8 +190,7 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public long scoreWorstCase(NGram guess) {
-    // orElseThrow is triggered by an empty stream (.min() called on empty stream)
-    // so we don't need an explicit Object.requireNonNull()
+    // orElseThrow is triggered by an empty stream so corpus empty assertion is implicit
     return corpus.stream()
         .mapToLong(ng -> score(ng, guess))
         .min()
@@ -199,7 +198,7 @@ public final class Corpus implements Iterable<NGram> {
   }
 
   /**
-   * Calculates the sum of scores of the guess among all corpus' n-grams
+   * Calculates the *sum* of scores of the guess among all corpus' n-grams
    *
    * @param guess The n-gram to evaluate
    * @return The average-case (sum) score for the given guess
@@ -242,6 +241,7 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public NGram bestGuess(ToLongFunction<NGram> criterion) {
+    // orElseThrow is triggered by an empty stream so corpus empty assertion is implicit
     return corpus.stream()
         .max((NGram a, NGram b) -> Long.compare(criterion.applyAsLong(a), criterion.applyAsLong(b)))
         .orElseThrow(IllegalStateException::new);
