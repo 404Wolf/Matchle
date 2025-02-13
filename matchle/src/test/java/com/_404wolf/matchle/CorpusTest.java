@@ -173,14 +173,14 @@ class CorpusTest {
 
   @Test
   void testBestWorstCaseGuess() {
-    NGram bestGuess = exampleCorpus.bestWorstCaseGuess(NGram.from("route"));
+    NGram bestGuess = exampleCorpus.bestWorstCaseGuess();
     assertNotNull(bestGuess);
     assertTrue(exampleCorpus.corpus().contains(bestGuess));
   }
 
   @Test
   void testBestAverageCaseGuess() {
-    NGram bestGuess = exampleCorpus.bestAverageCaseGuess(NGram.from("route"));
+    NGram bestGuess = exampleCorpus.bestAverageCaseGuess();
     assertNotNull(bestGuess);
     assertTrue(exampleCorpus.corpus().contains(bestGuess));
   }

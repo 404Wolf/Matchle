@@ -225,26 +225,24 @@ public final class Corpus implements Iterable<NGram> {
   /**
    * Returns the best guess according to the worst-case (maximum) criterion
    *
-   * @param guess The initial guess to consider
    * @return The n-gram that minimizes the worst-case score
    * @throws IllegalStateException if the corpus is empty
    */
-  public NGram bestWorstCaseGuess(NGram guess) {
-    Objects.requireNonNull(guess, "guess cannot be null");
+  public NGram bestWorstCaseGuess() {
     requireNonEmpty();
 
+    // for each ngram in the corpus, compute the score together with this
+    // guess. then return the ngram that had the lowest score.
     return bestGuess(this::scoreWorstCase);
   }
 
   /**
    * Returns the best guess according to the average-case (sum) criterion
    *
-   * @param guess The initial guess to consider
    * @return The n-gram that minimizes the average-case score
    * @throws IllegalStateException if the corpus is empty
    */
-  public NGram bestAverageCaseGuess(NGram guess) {
-    Objects.requireNonNull(guess, "guess cannot be null");
+  public NGram bestAverageCaseGuess() {
     requireNonEmpty();
 
     return bestGuess(this::scoreAverageCase);
