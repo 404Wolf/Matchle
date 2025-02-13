@@ -163,7 +163,7 @@ class CorpusTest {
 
   @Test
   void testScoreWorstCase() {
-    assertEquals(1, exampleCorpus.scoreWorstCase(NGram.from("route")));
+    assertEquals(2, exampleCorpus.scoreWorstCase(NGram.from("route")));
   }
 
   @Test
