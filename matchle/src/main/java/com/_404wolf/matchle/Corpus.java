@@ -172,7 +172,7 @@ public final class Corpus implements Iterable<NGram> {
 
   /**
    * The size of the corpus that is consistent with the filter that matches the key and the guess
-   * n-grams
+   * n-grams. If your guess gets this to 1 you've "won".
    *
    * @param key The key n-gram to compare against
    * @param guess The guess n-gram to evaluate
@@ -182,13 +182,10 @@ public final class Corpus implements Iterable<NGram> {
   public long score(NGram key, NGram guess) {
     Objects.requireNonNull(key, "key cannot be null");
     Objects.requireNonNull(guess, "guess cannot be null");
+    requireNonEmpty();
 
-    if (corpus.stream().count() == 0) {
-      throw new IllegalStateException("Corpus is empty and cannot be scored");
-    } else {
-      NGramMatcher matcher = NGramMatcher.of(key, guess);
-      return size(matcher.match());
-    }
+    NGramMatcher matcher = NGramMatcher.of(key, guess);
+    return size(matcher.match());
   }
 
   /**
@@ -204,7 +201,7 @@ public final class Corpus implements Iterable<NGram> {
     // orElseThrow is triggered by an empty stream so corpus empty assertion is implicit
     return corpus.stream()
         .mapToLong(ng -> score(ng, guess))
-        .min()
+        .max()
         .orElseThrow(IllegalStateException::new);
   }
 
