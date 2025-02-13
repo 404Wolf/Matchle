@@ -1,10 +1,13 @@
 package com._404wolf.matchle;
 
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -76,6 +79,17 @@ final class NGramMatcher {
     }
   }
 
+  private static final EnumMap<MatchReportStatus, Function<MatchReport, Filter>> FILTER_STRATEGIES =
+      new EnumMap<>(
+          Map.of(
+              MatchReportStatus.CharMatch,
+              report -> Filter.from(ngram -> ngram.matches(report.indexedCharacter())),
+              MatchReportStatus.CharElsewhere,
+              report -> Filter.from(ngram -> ngram.containsElsewhere(report.indexedCharacter())),
+              MatchReportStatus.CharAbsent,
+              report ->
+                  Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()))));
+
   /**
    * Builds a predicate that represents the matching pattern between the key and guess. The matching
    * algorithm works in three phases: 1. Matches identical characters in the same positions 2.
@@ -87,19 +101,8 @@ final class NGramMatcher {
     matchSamePosition().matchDifferentPositions().matchAbsentCharacters();
 
     return reports.stream()
-        .map(
-            report ->
-                switch (report.status()) {
-                  case CharMatch -> Filter.from(ngram -> ngram.matches(report.indexedCharacter()));
-                  case CharElsewhere ->
-                      Filter.from(ngram -> ngram.containsElsewhere(report.indexedCharacter()));
-                  case CharAbsent ->
-                      Filter.from(ngram -> !ngram.contains(report.indexedCharacter().character()));
-                })
-        // ^ The function that we add to filters list is based on the status of the
-        // report
-        .reduce((acc, cur) -> acc.and(Optional.of(cur)))
-        // reduces to an optional in case reduce fails (e.g. no items in list)
+        .map(report -> FILTER_STRATEGIES.get(report.status()).apply(report))
+        .reduce((f1, f2) -> f1.and(Optional.of(f2)))
         .orElse(Filter.FALSE); // fall back to false
   }
 

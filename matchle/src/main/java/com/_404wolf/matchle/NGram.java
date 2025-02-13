@@ -129,6 +129,8 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * @return true if the character matches at the given index, false otherwise
    */
   public boolean matches(IndexedCharacter c) {
+    Objects.requireNonNull(c, "IndexedCharacter cannot be null");
+
     try {
       return ngram.get(Objects.checkIndex(c.index(), ngram.size())).equals(c.character());
     } catch (IndexOutOfBoundsException e) {
@@ -143,6 +145,8 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * @return true if the character is present, false otherwise
    */
   public boolean contains(char c) {
+    Objects.requireNonNull(c, "Character cannot be null");
+
     return charset.contains(c);
   }
 
@@ -154,6 +158,8 @@ public final class NGram implements Iterable<IndexedCharacter> {
    * @return true if the character is present at a different index, false otherwise
    */
   public boolean containsElsewhere(IndexedCharacter c) {
+    Objects.requireNonNull(c, "IndexedCharacter cannot be null");
+
     return IntStream.range(0, ngram.size())
         .filter(i -> i != c.index()) // get all the "wrong" elements
         .mapToObj(i -> ngram.get(i)) // map them to ngrams
@@ -197,7 +203,7 @@ public final class NGram implements Iterable<IndexedCharacter> {
     if (this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
+    if (Objects.isNull(obj) || getClass() != obj.getClass()) {
       return false;
     }
     NGram other = (NGram) obj;

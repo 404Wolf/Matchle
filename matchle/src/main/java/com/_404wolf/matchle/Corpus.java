@@ -119,6 +119,8 @@ public final class Corpus implements Iterable<NGram> {
      * @return true if all n-grams have the specified word size, false otherwise
      */
     public boolean isConsistent(Integer wordSize) {
+      Objects.requireNonNull(wordSize, "wordSize cannot be null");
+
       return ngrams.stream().allMatch(ngram -> ngram.size() == wordSize);
     }
 
@@ -141,6 +143,8 @@ public final class Corpus implements Iterable<NGram> {
      * @param corpus The Corpus you want a Builder for.
      */
     public static final Builder of(Corpus corpus) {
+      Objects.requireNonNull(corpus, "corpus cannot be null");
+
       Builder builder = new Builder(new HashSet<>());
       corpus.forEach(builder::add);
       return builder;
@@ -156,6 +160,8 @@ public final class Corpus implements Iterable<NGram> {
    * @return The number of n-grams consistent with the filter.
    */
   public long size(Filter filter) {
+    Objects.requireNonNull(filter, "filter cannot be null");
+
     return corpus.stream().filter(filter::test).count();
   }
 
@@ -174,6 +180,9 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public long score(NGram key, NGram guess) {
+    Objects.requireNonNull(key, "key cannot be null");
+    Objects.requireNonNull(guess, "guess cannot be null");
+
     if (corpus.stream().count() == 0) {
       throw new IllegalStateException("Corpus is empty and cannot be scored");
     } else {
@@ -190,6 +199,8 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public long scoreWorstCase(NGram guess) {
+    Objects.requireNonNull(guess, "guess cannot be null");
+
     // orElseThrow is triggered by an empty stream so corpus empty assertion is implicit
     return corpus.stream()
         .mapToLong(ng -> score(ng, guess))
@@ -205,7 +216,9 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public long scoreAverageCase(NGram guess) {
+    Objects.requireNonNull(guess, "guess cannot be null");
     requireNonEmpty();
+
     return corpus.stream().mapToLong(ng -> score(ng, guess)).sum();
   }
 
@@ -217,7 +230,9 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public NGram bestWorstCaseGuess(NGram guess) {
+    Objects.requireNonNull(guess, "guess cannot be null");
     requireNonEmpty();
+
     return bestGuess(this::scoreWorstCase);
   }
 
@@ -229,7 +244,9 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public NGram bestAverageCaseGuess(NGram guess) {
+    Objects.requireNonNull(guess, "guess cannot be null");
     requireNonEmpty();
+
     return bestGuess(this::scoreAverageCase);
   }
 
@@ -241,6 +258,8 @@ public final class Corpus implements Iterable<NGram> {
    * @throws IllegalStateException if the corpus is empty
    */
   public NGram bestGuess(ToLongFunction<NGram> criterion) {
+    Objects.requireNonNull(criterion, "criterion cannot be null");
+
     // orElseThrow is triggered by an empty stream so corpus empty assertion is implicit
     return corpus.stream()
         .max((NGram a, NGram b) -> Long.compare(criterion.applyAsLong(a), criterion.applyAsLong(b)))
