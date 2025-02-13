@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.ToLongFunction;
 
 /**
  * The {@code Corpus} class represents a collection of n-grams that form a dictionary for
@@ -34,7 +35,7 @@ public final class Corpus implements Iterable<NGram> {
    *
    * @return the common size of the n-grams in the corpus
    */
-  int wordSize() {
+  public int wordSize() {
     return corpus.iterator().next().size();
   }
 
@@ -158,9 +159,19 @@ public final class Corpus implements Iterable<NGram> {
     return corpus.stream().filter(filter::test).count();
   }
 
+  /** Whether the corpus has elements in it. */
+  private void requireNonEmpty() {
+    if (corpus.isEmpty()) throw new IllegalStateException();
+  }
+
   /**
-   * The size of the corpus that is consistent with the ﬁlter that matches the key and the guess
+   * The size of the corpus that is consistent with the filter that matches the key and the guess
    * n-grams
+   *
+   * @param key The key n-gram to compare against
+   * @param guess The guess n-gram to evaluate
+   * @return The size of the filtered corpus
+   * @throws IllegalStateException if the corpus is empty
    */
   public long score(NGram key, NGram guess) {
     if (corpus.stream().count() == 0) {
@@ -169,5 +180,70 @@ public final class Corpus implements Iterable<NGram> {
       NGramMatcher matcher = NGramMatcher.of(key, guess);
       return size(matcher.match());
     }
+  }
+
+  /**
+   * Calculates the maximum score of the guess among all corpus' n-grams
+   *
+   * @param guess The n-gram to evaluate
+   * @return The worst-case (maximum) score for the given guess
+   * @throws IllegalStateException if the corpus is empty
+   */
+  public long scoreWorstCase(NGram guess) {
+    // orElseThrow is triggered by an empty stream (.min() called on empty stream)
+    // so we don't need an explicit Object.requireNonNull()
+    return corpus.stream()
+        .mapToLong(ng -> score(ng, guess))
+        .min()
+        .orElseThrow(IllegalStateException::new);
+  }
+
+  /**
+   * Calculates the sum of scores of the guess among all corpus' n-grams
+   *
+   * @param guess The n-gram to evaluate
+   * @return The average-case (sum) score for the given guess
+   * @throws IllegalStateException if the corpus is empty
+   */
+  public long scoreAverageCase(NGram guess) {
+    requireNonEmpty();
+    return corpus.stream().mapToLong(ng -> score(ng, guess)).sum();
+  }
+
+  /**
+   * Returns the best guess according to the worst-case (maximum) criterion
+   *
+   * @param guess The initial guess to consider
+   * @return The n-gram that minimizes the worst-case score
+   * @throws IllegalStateException if the corpus is empty
+   */
+  public NGram bestWorstCaseGuess(NGram guess) {
+    requireNonEmpty();
+    return bestGuess(this::scoreWorstCase);
+  }
+
+  /**
+   * Returns the best guess according to the average-case (sum) criterion
+   *
+   * @param guess The initial guess to consider
+   * @return The n-gram that minimizes the average-case score
+   * @throws IllegalStateException if the corpus is empty
+   */
+  public NGram bestAverageCaseGuess(NGram guess) {
+    requireNonEmpty();
+    return bestGuess(this::scoreAverageCase);
+  }
+
+  /**
+   * Returns the best guess according to a custom criterion
+   *
+   * @param criterion The function to evaluate n-grams
+   * @return The n-gram that minimizes the given criterion
+   * @throws IllegalStateException if the corpus is empty
+   */
+  public NGram bestGuess(ToLongFunction<NGram> criterion) {
+    return corpus.stream()
+        .max((NGram a, NGram b) -> Long.compare(criterion.applyAsLong(a), criterion.applyAsLong(b)))
+        .orElseThrow(IllegalStateException::new);
   }
 }

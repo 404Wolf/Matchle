@@ -6,9 +6,24 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.ToLongFunction;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class CorpusTest {
+  private static Corpus exampleCorpus;
+
+  @BeforeAll
+  static void setUp() {
+    exampleCorpus =
+        Corpus.Builder.EMPTY()
+            .add(NGram.from("rebus"))
+            .add(NGram.from("redux"))
+            .add(NGram.from("route"))
+            .add(NGram.from("hello"))
+            .build();
+  }
 
   @Test
   void testCorpusCreation() {
@@ -93,30 +108,21 @@ class CorpusTest {
 
   @Test
   void testCorpusSize() {
-    // Create a corpus with several words
-    Corpus corpus =
-        Corpus.Builder.EMPTY()
-            .add(NGram.from("route"))
-            .add(NGram.from("rebus"))
-            .add(NGram.from("redux"))
-            .add(NGram.from("hello"))
-            .build();
-
     // Test with a filter that matches words starting with "re"
     Filter startsWithRe = Filter.from(ngram -> ngram.toString().startsWith("re"));
-    assertEquals(2, corpus.size(startsWithRe));
+    assertEquals(2, exampleCorpus.size(startsWithRe));
 
     // Test with a filter that matches nothing
     Filter matchesNothing = Filter.from(ngram -> false);
-    assertEquals(0, corpus.size(matchesNothing));
+    assertEquals(0, exampleCorpus.size(matchesNothing));
 
     // Test with a filter that matches everything
     Filter matchesEverything = Filter.from(ngram -> true);
-    assertEquals(4, corpus.size(matchesEverything));
+    assertEquals(4, exampleCorpus.size(matchesEverything));
 
     // Test with a specific pattern filter
     Filter containsE = Filter.from(ngram -> ngram.toString().contains("e"));
-    assertEquals(4, corpus.size(containsE));
+    assertEquals(4, exampleCorpus.size(containsE));
   }
 
   @Test
@@ -136,5 +142,60 @@ class CorpusTest {
     assertThrows(
         IllegalStateException.class,
         () -> Corpus.Builder.EMPTY().build().score(NGram.from(""), NGram.from("")));
+  }
+
+  @Test
+  void testScore() {
+    NGram guess = NGram.from("route");
+
+    assertEquals(2, exampleCorpus.score(NGram.from("rebus"), guess));
+    assertEquals(2, exampleCorpus.score(NGram.from("redux"), guess));
+    assertEquals(1, exampleCorpus.score(NGram.from("route"), guess));
+    assertEquals(1, exampleCorpus.score(NGram.from("hello"), guess));
+  }
+
+  @Test
+  void testScoreWithEmptyCorpus() {
+    Corpus emptyCorpus = Corpus.Builder.EMPTY().build();
+    assertThrows(
+        IllegalStateException.class,
+        () -> emptyCorpus.score(NGram.from("test"), NGram.from("test")));
+  }
+
+  @Test
+  void testScoreWorstCase() {
+    assertEquals(1, exampleCorpus.scoreWorstCase(NGram.from("route")));
+  }
+
+  @Test
+  void testScoreAverageCase() {
+    assertEquals(6, exampleCorpus.scoreAverageCase(NGram.from("route")));
+  }
+  
+  @Test
+  void testBestWorstCaseGuess() {
+    NGram bestGuess = exampleCorpus.bestWorstCaseGuess(NGram.from("route"));
+    assertNotNull(bestGuess);
+    assertTrue(exampleCorpus.corpus().contains(bestGuess));
+  }
+
+  @Test
+  void testBestAverageCaseGuess() {
+    NGram bestGuess = exampleCorpus.bestAverageCaseGuess(NGram.from("route"));
+    assertNotNull(bestGuess);
+    assertTrue(exampleCorpus.corpus().contains(bestGuess));
+  }
+
+  @Test
+  void testBestGuessWithCustomCriterion() {
+    ToLongFunction<NGram> criterion = ngram -> 1L; // Simple criterion that always returns 1
+    NGram bestGuess = exampleCorpus.bestGuess(criterion);
+    assertNotNull(bestGuess);
+    assertTrue(exampleCorpus.corpus().contains(bestGuess));
+  }
+
+  @Test
+  void testBestGuessWithNullCriterion() {
+    assertThrows(NullPointerException.class, () -> exampleCorpus.bestGuess(null));
   }
 }
